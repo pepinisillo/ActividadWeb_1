@@ -17,15 +17,10 @@ class WebRequestHandler(BaseHTTPRequestHandler):
 
     def get_response(self):
         return f"""
-    <h1> Hola Web </h1>
-    <p> URL Parse Result : {self.url()}         </p>
-    <p> Path Original: {self.path}         </p>
-    <p> Headers: {self.headers}      </p>
-    <p> Query: {self.query_data()}   </p>
-"""
-
+        <h1> Proyecto: {self.url().path.split('/')[-1]} Autor: {self.query_data()['autor']}</h1>
+    """
 
 if __name__ == "__main__":
     print("Starting server")
-    server = HTTPServer(("localhost", 8000), WebRequestHandler)
+    server = HTTPServer(("localhost", 8080), WebRequestHandler)
     server.serve_forever()
