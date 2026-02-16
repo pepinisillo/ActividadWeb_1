@@ -10,30 +10,38 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         return dict(parse_qsl(self.url().query))
 
     def do_GET(self):
-        if self.url().path == "/":
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            with open("home.html", "r", encoding="utf-8") as archivo:
-                html = archivo.read()
-            self.wfile.write(html.encode("utf-8"))
-            return #Dejar de ejecutar el resto del código
-        else:
-            self.send_error(404, "Página no encontrada")
-            return #Mostrar error en caso de que la ruta sea una distinta 
+        contenido = {'/': 'home.html', '/proyecto/1': '1.html', '/proyecto/web-uno': self.respuesta_autor, '/proyecto/web-dos': self.respuesta_autor}
+        valor = contenido.get(self.url().path)
 
-        """
-        if self.query_data().get("autor") is None:
-            self.send_error(400, "No se proporcionó el autor")
+        if self.url().path not in contenido:
+            self.send_error(404, "Archivo no encontrado")
             return
-
+        else:
+            if callable(valor):
+                if not self.query_data().get("autor"):
+                    self.send_error(400, "Falta el parámetro 'autor'")
+                    return
+                else:
+                    self.info_html()
+                    self.wfile.write(valor().encode("utf-8"))
+                    return
+            else:
+                self.info_html()
+                self.regresar_html(valor)
+                return
+      
+    def regresar_html(self, archivo):
+        with open(archivo, "r", encoding="utf-8") as f:
+            html = f.read()
+        self.wfile.write(html.encode("utf-8"))
+        return 
+    
+    def info_html(self):
         self.send_response(200)
-        self.send_header("Content-Type", "text/html")
+        self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(self.get_response().encode("utf-8"))
-        """
-
-    def get_response(self):
+    
+    def respuesta_autor(self):
         return f"""
         <h1> Proyecto: {self.url().path.split('/')[-1]} Autor: {self.query_data()['autor']}</h1>
     """
