@@ -16,7 +16,10 @@ class WebRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(self.get_response().encode("utf-8"))
 
     def get_response(self):
-        return f"""
+        if self.query_data().get("autor") is None:
+            return self.send_error(400, "No se proporcionó el autor")
+        else:
+            return f"""
         <h1> Proyecto: {self.url().path.split('/')[-1]} Autor: {self.query_data()['autor']}</h1>
     """
 
